@@ -26,13 +26,13 @@ Sadhvi is a junior CS major at Harvey Mudd interested in digital and hardware de
 
 ![](images/sadhvi.jpeg){.team-photo}
 
-Corey is a senior engineering major at Harvey Mudd ...
+Corey is a senior engineering major at Harvey Mudd with a background in design verification
 
 **Links:**
 
-- [LinkedIn]()
-- [GitHub]()
-- [Portfolio]()
+- [LinkedIn](https://www.linkedin.com/in/corey-hickson/)
+- [GitHub](https://github.com/coreyqh)
+- [Portfolio](https://coreyqh.github.io/hmc-e155-portfolio/)
 
 </div>
 

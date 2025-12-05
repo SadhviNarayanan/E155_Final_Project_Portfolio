@@ -22,7 +22,7 @@ When the player hits the spin button, the MCU gets random values from the TRNG p
 
 The schematic in Figure 1 demonstrates the overall design of how we are connecting the FPGA to the VGA monitor. Because we are only using 3-bit resolution for the pixels, we are scaling the voltage outputs to 0.7 if we want to display a color.
 
-NOTE: Any pins with a letter in it corresponds to a pin on the MCU, and any pin with no letters and just a number corresponds to a pin on the FPGA.
+NOTE: Any pins with a letter following the "P" corresponds to a pin on the MCU (e.g. PA10, PB4), and any pin with just a number following "P" corresponds to a pin on the FPGA (e.g. P21, P47).
 
 ## Technical Documentation/Source Code
 The source code for the project can be found in the associated [Github repository](https://github.com/SadhviNarayanan/uP_slot_machine)
@@ -33,13 +33,18 @@ The source code for the project can be found in the associated [Github repositor
 | **Quantity** | **Item** | **Price (incl. Tax & Shipping)** | **Purchase Link** |
 |:--:|:--|:--:|:--:|
 | 1 | 7 inch VGA Monitor | $45.68 | [Link to Monitor](amazon.com/Aurevita-HDMI-LCD-Multi-Function-Raspberry/dp/B0DYV5YRW2/ref=sr_1_4?crid=3L62JC6OCNHNJ&dib=eyJ2IjoiMSJ9.PfvjWKgqBLp0KotuCD6G73wqAlNTlXwA5jucw81A6BZTMl75g80HYobGStZq6aSHC5BiebfoLs6wawTL6hOpAlZWGHgLGSyZsVeWnnGounDSm44MouLQY4FloVqISoY_5gIIF_4tknwyUPfrme88JjKIe3fJsTBQLmWQ9aLLO4B6-igyuU5RRu6zHMrQpnn41GqZIzbbhfMVMh6vBDyMtI55_7-iQal233iokNTe5f8.WWgulaldR5x1Sayg1hJ-5plDATBGf2rI1H1qevI4GFM&dib_tag=se&keywords=vga+monitor&qid=1760585872&sprefix=vga+monito%2Caps%2C187&sr=8-4) |
+| 1 | VGA Cable| Stockroom | n/a |
 | 1 | Phototransistor | Stockroom | n/a |
-| 1 | IR LED | Stockroom | n/a |
+| 1 | LED | Stockroom | n/a |
 | 1 | Clicky Pushbutton | Stockroom | n/a |
 | 1 | 4 Way (Rotary) Selector Switch | Stockroom | n/a |
 | 5 | Seven Segment Display | Stockroom | n/a |
 | 5 | PNP Transistors | Stockroom | n/a |
-| 5 | 1 kΩ Resistors (for PNPs) | Stockroom | n/a |
-| 7 | 680 Ω Resistors (current limiting) | Stockroom | n/a |
-| 3 | 275 kΩ Resistors (voltage divider) | Stockroom | n/a |
-| 1 | 10 kΩ Resistors (voltage divider) | Stockroom | n/a |
+| 11 | 1 kΩ Resistors | Stockroom | n/a |
+| 7 | 330 Ω Resistors | Stockroom | n/a |
+| 5 | 10 kΩ Resistors | Stockroom | n/a |
+| 1 | 10 MΩ Resistor  | Stockroom | n/a |
+| 1 | 47 Ω Resistor  | Stockroom | n/a |
+| 2 | 80 Ω Resistor  | Stockroom | n/a |
+| 3 | 280 Ω Resistor  | Stockroom | n/a |
+| 1 | MCP6002 Op Amp  | Stockroom | n/a |

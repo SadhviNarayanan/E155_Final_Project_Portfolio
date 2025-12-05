@@ -144,4 +144,6 @@ The controller uses counters to track position within these windows. During the 
 ### Block Diagram
 ![Figure 1: Block Diagram of the project](images/block_diagram.png)
 
-The block diagram in Figure 1 demonstrates the overall design and architecture of the design. We can see there are a variety of control modules to handle the VGA display as well as memory accesses (to display the sprites correctly). We also have ROM blocks, and other elements include a SPI module and 7-segment display for other feautures in our design.
+![Figure 2: Memory subsystem block diagram](images/mem_ctrl_block_diagram.png)
+
+The block diagrams in Figures 1 and 2 demonstrate the overall design and architecture of the design. We can see there are a variety of control modules to handle the VGA display as well as memory accesses (to display the sprites correctly). We also have ROM blocks, and other elements include a SPI module and 7-segment display for other feautures in our design.
