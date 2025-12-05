@@ -3,21 +3,38 @@ title: MCU Design
 ---
 
 ## MCU Design
-The MCU handles high-level game logic and asynchronous events.
+The MCU handles high-level game logic, tracking of asynchronous events, and controlling the FPGA design vis SPI. The program keeps track of how many credits the player has, how much the player is wagering, which sprites are 
+selected when the player spins, and how much the player wins given those sprites. The core game look checks for flags set by interrupt handler functions and sends requests to the FPGA accordingly. When an interrupt is caused 
+by the coin detection circuit, an interrupt handler incrementsthe player's credit count and sets a flag indicating that an update request is pending to the sent to the FPGA over SPI to update the displayed number of credits
+on 7-segment displays at the next available time. If instead the spin button causes an interrupt, the interrupt handler sets a flag indicating that a spin request is pending. This flag tells the program to read the GPIO input value at the pins corresponding 
+to the wager selector rotary switch and checks if the player has enough credits to wager that much. If they do, then 3 sprites are selected at random and sent to the the FPGA via a spin request. The program then stalls until the
+MCU recieves a done signal from the FPGA.  At this point, the program calculates how much the player won from their spin, and sends that value to the FPGA in a win request, causing the win value on 7-segment displays to be updated. 
+Finally, the credit count is updated with these winnings, and another update reuest is sent to reflect this on the 7-segment displays. 
 
-Core MCU Functions:
+### Core MCU Functions:
 
 - **Coin Detection (Interrupt-Driven):**
-    - External interrupt triggered by photodiode/coin slot.
+    - External interrupt triggered by phototransistor based coin slot.
     - Increments credit count
-    - Denomination dial determines number of credits to “bet”
-    - Only starts game when denomination is less that or equal to number of credits
-- **Button Handling:**
+- **Button Handling (Interrupt-Driven):**
     - Spin button Interrupt triggers START_SPIN sequence and message to FPGA
+    - Only starts game when wager is less that or equal to number of credits
 - **Wager/Bet Rotary Switch Control:**
-    - Dial to control how much the player wants to bet in the current round
+    - Dial connected to GPIO pins to control how much the player wants to bet in the current round
 - **Game Logic + SPI:**
-    - Tracks credits, bets, and game state (`IDLE`, `SPINNING`, `RESULT`).
-    - Generates the true random final indices of the displayed icons from within three lists representing the three  spinning reels, using these to calculate the player’s winnings and total credits
+    - Tracks credits, bets, and winnigs
+    - Generates the true random final indices of the displayed icons from within three lists representing the three spinning reels, using these to calculate the player’s winnings and total credits
     - Sends a 16 bit SPI packet to the FPGA to indicate where the three reels should stop spinning, then another for how many credits the player won, and a final one for how many credits the player has
-    - Waits for an ACK after the spin sequence
+    - Waits for a done signal after the spin sequence
+
+### Main program flow chart
+
+Figure 1 demonstrates the process flow for the main program loop
+
+![Figure 1: Main program flow chart](images/main_flow.drawio.png)
+
+### New MCU feature
+
+We chose to explore the STM32's true random number generator perihperal as out new MCU feature for this project. This allows us to produce truly indeterministic sequences of spin results since the RNG is based on an analog noise
+source as opposed to a seeded deterministic RNG program. To use this peripheral, we created a new library of functions called `STM32L432KC_RNG` in an analogous form as the GPIO, SPI, and other driver libraries we have used in e155.
+This library contains setup code to enable the RNG peripheral, as well as a function to get a random number, which contains checks for the RNG being active and truly producing random numbers. 
