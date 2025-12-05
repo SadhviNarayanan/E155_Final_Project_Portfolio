@@ -24,7 +24,7 @@ Sadhvi is a junior CS major at Harvey Mudd interested in digital and hardware de
 
 ## Corey Hickson
 
-![](images/corey.jpg){.team-photo}
+![](images/sadhvi.jpeg){.team-photo}
 
 Corey is a senior engineering major at Harvey Mudd ...
 
