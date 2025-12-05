@@ -187,7 +187,7 @@ ul.task-list li input[type="checkbox"] {
 </figure>
 </div>
 <p>The schematic in Figure 1 demonstrates the overall design of how we are connecting the FPGA to the VGA monitor. Because we are only using 3-bit resolution for the pixels, we are scaling the voltage outputs to 0.7 if we want to display a color.</p>
-<p>NOTE: Any pins with a letter in it corresponds to a pin on the MCU, and any pin with no letters and just a number corresponds to a pin on the FPGA.</p>
+<p>NOTE: Any pins with a letter following the “P” corresponds to a pin on the MCU (e.g.&nbsp;PA10, PB4), and any pin with just a number following “P” corresponds to a pin on the FPGA (e.g.&nbsp;P21, P47).</p>
 </section>
 <section id="technical-documentationsource-code" class="level2">
 <h2 class="anchored" data-anchor-id="technical-documentationsource-code">Technical Documentation/Source Code</h2>
@@ -213,61 +213,91 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td style="text-align: center;">1</td>
-<td style="text-align: left;">Phototransistor</td>
+<td style="text-align: left;">VGA Cable</td>
 <td style="text-align: center;">Stockroom</td>
 <td style="text-align: center;">n/a</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">1</td>
-<td style="text-align: left;">IR LED</td>
+<td style="text-align: left;">Phototransistor</td>
 <td style="text-align: center;">Stockroom</td>
 <td style="text-align: center;">n/a</td>
 </tr>
 <tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">LED</td>
+<td style="text-align: center;">Stockroom</td>
+<td style="text-align: center;">n/a</td>
+</tr>
+<tr class="odd">
 <td style="text-align: center;">1</td>
 <td style="text-align: left;">Clicky Pushbutton</td>
 <td style="text-align: center;">Stockroom</td>
 <td style="text-align: center;">n/a</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: center;">1</td>
 <td style="text-align: left;">4 Way (Rotary) Selector Switch</td>
 <td style="text-align: center;">Stockroom</td>
 <td style="text-align: center;">n/a</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: center;">5</td>
 <td style="text-align: left;">Seven Segment Display</td>
 <td style="text-align: center;">Stockroom</td>
 <td style="text-align: center;">n/a</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: center;">5</td>
 <td style="text-align: left;">PNP Transistors</td>
 <td style="text-align: center;">Stockroom</td>
 <td style="text-align: center;">n/a</td>
 </tr>
+<tr class="odd">
+<td style="text-align: center;">11</td>
+<td style="text-align: left;">1 kΩ Resistors</td>
+<td style="text-align: center;">Stockroom</td>
+<td style="text-align: center;">n/a</td>
+</tr>
 <tr class="even">
-<td style="text-align: center;">5</td>
-<td style="text-align: left;">1 kΩ Resistors (for PNPs)</td>
+<td style="text-align: center;">7</td>
+<td style="text-align: left;">330 Ω Resistors</td>
 <td style="text-align: center;">Stockroom</td>
 <td style="text-align: center;">n/a</td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">7</td>
-<td style="text-align: left;">680 Ω Resistors (current limiting)</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: left;">10 kΩ Resistors</td>
 <td style="text-align: center;">Stockroom</td>
 <td style="text-align: center;">n/a</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">3</td>
-<td style="text-align: left;">275 kΩ Resistors (voltage divider)</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">10 MΩ Resistor</td>
 <td style="text-align: center;">Stockroom</td>
 <td style="text-align: center;">n/a</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">1</td>
-<td style="text-align: left;">10 kΩ Resistors (voltage divider)</td>
+<td style="text-align: left;">47 Ω Resistor</td>
+<td style="text-align: center;">Stockroom</td>
+<td style="text-align: center;">n/a</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2</td>
+<td style="text-align: left;">80 Ω Resistor</td>
+<td style="text-align: center;">Stockroom</td>
+<td style="text-align: center;">n/a</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">3</td>
+<td style="text-align: left;">280 Ω Resistor</td>
+<td style="text-align: center;">Stockroom</td>
+<td style="text-align: center;">n/a</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">MCP6002 Op Amp</td>
 <td style="text-align: center;">Stockroom</td>
 <td style="text-align: center;">n/a</td>
 </tr>

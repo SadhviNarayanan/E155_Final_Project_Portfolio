@@ -138,7 +138,12 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#mcu-design" id="toc-mcu-design" class="nav-link active" data-scroll-target="#mcu-design">MCU Design</a></li>
+  <li><a href="#mcu-design" id="toc-mcu-design" class="nav-link active" data-scroll-target="#mcu-design">MCU Design</a>
+  <ul class="collapse">
+  <li><a href="#core-mcu-functions" id="toc-core-mcu-functions" class="nav-link" data-scroll-target="#core-mcu-functions">Core MCU Functions:</a></li>
+  <li><a href="#main-program-flow-chart" id="toc-main-program-flow-chart" class="nav-link" data-scroll-target="#main-program-flow-chart">Main program flow chart</a></li>
+  <li><a href="#new-mcu-feature" id="toc-new-mcu-feature" class="nav-link" data-scroll-target="#new-mcu-feature">New MCU feature</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -166,34 +171,49 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="mcu-design" class="level2">
 <h2 class="anchored" data-anchor-id="mcu-design">MCU Design</h2>
-<p>The MCU handles high-level game logic and asynchronous events.</p>
-<p>Core MCU Functions:</p>
+<p>The MCU handles high-level game logic, tracking of asynchronous events, and controlling the FPGA design vis SPI. The program keeps track of how many credits the player has, how much the player is wagering, which sprites are selected when the player spins, and how much the player wins given those sprites. The core game look checks for flags set by interrupt handler functions and sends requests to the FPGA accordingly. When an interrupt is caused by the coin detection circuit, an interrupt handler incrementsthe player’s credit count and sets a flag indicating that an update request is pending to the sent to the FPGA over SPI to update the displayed number of credits on 7-segment displays at the next available time. If instead the spin button causes an interrupt, the interrupt handler sets a flag indicating that a spin request is pending. This flag tells the program to read the GPIO input value at the pins corresponding to the wager selector rotary switch and checks if the player has enough credits to wager that much. If they do, then 3 sprites are selected at random and sent to the the FPGA via a spin request. The program then stalls until the MCU recieves a done signal from the FPGA. At this point, the program calculates how much the player won from their spin, and sends that value to the FPGA in a win request, causing the win value on 7-segment displays to be updated. Finally, the credit count is updated with these winnings, and another update reuest is sent to reflect this on the 7-segment displays.</p>
+<section id="core-mcu-functions" class="level3">
+<h3 class="anchored" data-anchor-id="core-mcu-functions">Core MCU Functions:</h3>
 <ul>
 <li><strong>Coin Detection (Interrupt-Driven):</strong>
 <ul>
-<li>External interrupt triggered by photodiode/coin slot.</li>
+<li>External interrupt triggered by phototransistor based coin slot.</li>
 <li>Increments credit count</li>
-<li>Denomination dial determines number of credits to “bet”</li>
-<li>Only starts game when denomination is less that or equal to number of credits</li>
 </ul></li>
-<li><strong>Button Handling:</strong>
+<li><strong>Button Handling (Interrupt-Driven):</strong>
 <ul>
 <li>Spin button Interrupt triggers START_SPIN sequence and message to FPGA</li>
+<li>Only starts game when wager is less that or equal to number of credits</li>
 </ul></li>
 <li><strong>Wager/Bet Rotary Switch Control:</strong>
 <ul>
-<li>Dial to control how much the player wants to bet in the current round</li>
+<li>Dial connected to GPIO pins to control how much the player wants to bet in the current round</li>
 </ul></li>
 <li><strong>Game Logic + SPI:</strong>
 <ul>
-<li>Tracks credits, bets, and game state (<code>IDLE</code>, <code>SPINNING</code>, <code>RESULT</code>).</li>
+<li>Tracks credits, bets, and winnigs</li>
 <li>Generates the true random final indices of the displayed icons from within three lists representing the three spinning reels, using these to calculate the player’s winnings and total credits</li>
 <li>Sends a 16 bit SPI packet to the FPGA to indicate where the three reels should stop spinning, then another for how many credits the player won, and a final one for how many credits the player has</li>
-<li>Waits for an ACK after the spin sequence</li>
+<li>Waits for a done signal after the spin sequence</li>
 </ul></li>
 </ul>
+</section>
+<section id="main-program-flow-chart" class="level3">
+<h3 class="anchored" data-anchor-id="main-program-flow-chart">Main program flow chart</h3>
+<p>Figure 1 demonstrates the process flow for the main program loop</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/main_flow.drawio.png" class="img-fluid figure-img"></p>
+<figcaption>Figure 1: Main program flow chart</figcaption>
+</figure>
+</div>
+</section>
+<section id="new-mcu-feature" class="level3">
+<h3 class="anchored" data-anchor-id="new-mcu-feature">New MCU feature</h3>
+<p>We chose to explore the STM32’s true random number generator perihperal as out new MCU feature for this project. This allows us to produce truly indeterministic sequences of spin results since the RNG is based on an analog noise source as opposed to a seeded deterministic RNG program. To use this peripheral, we created a new library of functions called <code>STM32L432KC_RNG</code> in an analogous form as the GPIO, SPI, and other driver libraries we have used in e155. This library contains setup code to enable the RNG peripheral, as well as a function to get a random number, which contains checks for the RNG being active and truly producing random numbers.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

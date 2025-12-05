@@ -139,6 +139,7 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#simulation-results" id="toc-simulation-results" class="nav-link active" data-scroll-target="#simulation-results">Simulation Results</a></li>
+  <li><a href="#quantitative-analysis" id="toc-quantitative-analysis" class="nav-link" data-scroll-target="#quantitative-analysis">Quantitative Analysis</a></li>
   </ul>
 </nav>
     </div>
@@ -177,6 +178,74 @@ ul.task-list li input[type="checkbox"] {
 <p><img src="images/IMG_0653.jpg" class="img-fluid" alt="Figure 7: Our hardware before we built the hardware housing"> Figure 7 shows how our hardware looked before the hardware housing was built.</p>
 <section id="simulation-results" class="level3">
 <h3 class="anchored" data-anchor-id="simulation-results">Simulation Results</h3>
+<p>To ensure proper functionality and to debug subtle timing issues, the team developed unit level testbenches for the VGA controller, SPI rereceiverciever, and memory controller.</p>
+<section id="vga-controller" class="level4">
+<h4 class="anchored" data-anchor-id="vga-controller">VGA controller</h4>
+<p>Our testbench for the VGA controller did not have to provide any stimulus aside from clock and reset signals. The testbench let the VGA controller run through several frames, continuously checking the outputs of the desisgn against a set of design properties described with SystemVerilog assertions, which confirm proper timing in acordance to the VGA specification. Figure 8 shows the VGA signal waveforms from this testbench.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/vga_ctrl_wave.png" class="img-fluid figure-img"></p>
+<figcaption>Figure 8: VGA testbench waveforms</figcaption>
+</figure>
+</div>
+<p>These waveforms demonstrate the expected timing of VGA signals, as well as some helper signals for the SystemVerilog assertions.</p>
+</section>
+<section id="spi-receiver" class="level4">
+<h4 class="anchored" data-anchor-id="spi-receiver">SPI receiver</h4>
+<p>Our testbench for the SPI receiver module makes use of a custom SPI send data task which drives the input SPI signals to send 2 bytes of data of SPI to the device under test. This testbench does not self check with assertions, but was used mainly as a tool to investigate timing issues during hardware debugging. As such, this testbench was created to carefully match the clock timing and pulse width of the serial clock signal from the MCU and the internal PLL clock on the MCU. Figure 9 demonstrates the output waveforms from this testbench.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/spi_wave.png" class="img-fluid figure-img"></p>
+<figcaption>Figure 9: SPI Receiver waveforms</figcaption>
+</figure>
+</div>
+<p>From these waves we see a spin request and win request be accepted and properly parsed by the SPI receiver, as demonstrated by the module correctly driving the ending sprite indices and win credits following the two requests.</p>
+</section>
+<section id="memory-controller" class="level4">
+<h4 class="anchored" data-anchor-id="memory-controller">Memory controller</h4>
+<p>Our testbench for the memory controller sends a spin request to the memory controller, which produces the RBG pixel values for all pixels on the screen with help from an instance of the VGA controller. In addition to ad-hoc verification by way of investigating waveforms for expected pixel behavior, the design was continuously checked against a set of properties described with SystemVerilog assertions. Figures 10 and 11 demonstrate two of the key behaviors for this module.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/mem_ctrl_vsync_wave.png" class="img-fluid figure-img"></p>
+<figcaption>Figure 10: Memory controller waveforms demonstrating proper vsync bahvior</figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/mem_ctrl_hsync_wave.png" class="img-fluid figure-img"></p>
+<figcaption>Figure 11: Memory controller waveforms demonstrating proper hsync bahvior</figcaption>
+</figure>
+</div>
+<p>From figure 10, we see that the pixel color is always black surrounding the vsync pulse that ends the frame. Additionally, figure 11 demonstrates that interesting color data is extracted from memory when the hcount value is within one of the spinning reels, otherwise displaying black, as desired.</p>
+</section>
+</section>
+<section id="quantitative-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="quantitative-analysis">Quantitative Analysis</h3>
+<p>We wanted to make our slot machine as accurate as possible to real slot machines. In the gaming insdustry, it is typical to design slots to have around a 85-95% average return for playing a single spin. We wanted to tailor our odds to something close to this. Howver, since our ending sprite selection is true random, the ony way to increase average payout is to make more possible ways to win. To do this, we added a wildcard symbol and made any combination of single and triple bars pay.</p>
+<p>As part of routine unit testing for the winning calculations, we ran a regression of every possible combination of sprite indices, keeping track of the value won for each combination and taking the average to find the average payout of our slot machine.</p>
+<pre><code>...
+WILD + TPLBAR + TPLBAR       | [WILD, TPL_BAR, TPL_BAR]  | 9        | 9        | PASS 
+WILD + TPLBAR + SEVEN        | [WILD, TPL_BAR, SEVEN]    | 0        | 0        | PASS 
+WILD + TPLBAR + WILD         | [WILD, TPL_BAR, WILD]     | 9        | 9        | PASS 
+WILD + SEVEN + LEMON         | [WILD, SEVEN, LEMON]      | 0        | 0        | PASS 
+WILD + SEVEN + CHERRY        | [WILD, SEVEN, CHERRY]     | 0        | 0        | PASS 
+WILD + SEVEN + BELL          | [WILD, SEVEN, BELL]       | 0        | 0        | PASS 
+WILD + SEVEN + BAR           | [WILD, SEVEN, BAR]        | 0        | 0        | PASS 
+WILD + SEVEN + TPLBAR        | [WILD, SEVEN, TPL_BAR]    | 0        | 0        | PASS 
+WILD + SEVEN + SEVEN         | [WILD, SEVEN, SEVEN]      | 10       | 10       | PASS 
+WILD + SEVEN + WILD          | [WILD, SEVEN, WILD]       | 10       | 10       | PASS 
+WILD + WILD + LEMON          | [WILD, WILD, LEMON]       | 2        | 2        | PASS 
+WILD + WILD + CHERRY         | [WILD, WILD, CHERRY]      | 3        | 3        | PASS 
+WILD + WILD + BELL           | [WILD, WILD, BELL]        | 5        | 5        | PASS 
+WILD + WILD + BAR            | [WILD, WILD, BAR]         | 7        | 7        | PASS 
+WILD + WILD + TPLBAR         | [WILD, WILD, TPL_BAR]     | 9        | 9        | PASS 
+WILD + WILD + SEVEN          | [WILD, WILD, SEVEN]       | 10       | 10       | PASS 
+WILD + WILD + WILD           | [WILD, WILD, WILD]        | 10       | 10       | PASS 
+---------------------------------------------------------------------------------------------
+
+
+Average win is 0.962099</code></pre>
+<p>From the result of our test program, we see that the average payout is 96.2099%, which is very close to the desired range mentioned above, with odds slightly better for the player.</p>
 
 
 </section>
