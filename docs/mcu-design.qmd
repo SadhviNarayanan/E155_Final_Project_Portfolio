@@ -1,3 +1,23 @@
 ---
 title: MCU Design
 ---
+
+## MCU Design
+The MCU handles high-level game logic and asynchronous events.
+
+Core MCU Functions:
+
+- **Coin Detection (Interrupt-Driven):**
+    - External interrupt triggered by photodiode/coin slot.
+    - Increments credit count
+    - Denomination dial determines number of credits to “bet”
+    - Only starts game when denomination is less that or equal to number of credits
+- **Button Handling:**
+    - Spin button Interrupt triggers START_SPIN sequence and message to FPGA
+- **Wager/Bet Rotary Switch Control:**
+    - Dial to control how much the player wants to bet in the current round
+- **Game Logic + SPI:**
+    - Tracks credits, bets, and game state (`IDLE`, `SPINNING`, `RESULT`).
+    - Generates the true random final indices of the displayed icons from within three lists representing the three  spinning reels, using these to calculate the player’s winnings and total credits
+    - Sends a 16 bit SPI packet to the FPGA to indicate where the three reels should stop spinning, then another for how many credits the player won, and a final one for how many credits the player has
+    - Waits for an ACK after the spin sequence

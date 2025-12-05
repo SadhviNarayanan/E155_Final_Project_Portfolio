@@ -1,0 +1,12 @@
+---
+title: References
+---
+
+1) [iCE40 UltraPlus Family Data Sheet](https://hmc-e155.github.io/assets/doc/FPGA-DS-02008-2-0-iCE40-UltraPlus-Family-Data-Sheet.pdf) for FPGA layout especially relating to memory
+2) [iCE40 SPRAM Usage Guide](https://hmc-e155.github.io/assets/doc/FPGA-TN-02022-1-3-iCE40-SPRAM-Usage-Guide.pdf) to understand how memory is structured and accessed
+3) [iCE40 Technology Library](https://hmc-e155.github.io/assets/doc/FPGA-TN-02026-3-2-iCE40-Technology-Library.pdf) for available technologies and IPs on the FPGA - especially for memory layout.
+4) [Lattice IPs](https://www.latticesemi.com/en/Products/DesignSoftwareAndIP/IntellectualProperty/IP-Modules/Lattice-IP-Modules) to understand how to program the PLL.
+5) [Lattice ice40 BRAM Usage](https://tinlethax.wordpress.com/2022/05/07/ice40-bram-101-probably-the-correct-way-to-use-ice40-block-ram/)
+6) [STM32L432KC Datasheet](https://hmc-e155.github.io/assets/doc/ds11451-stm32l432kc.pdf) for MCU programming and configuration
+7) [STM32L432KC Reference Manual](https://hmc-e155.github.io/assets/doc/rm0394-stm32l41xxx42xxx43xxx44xxx45xxx46xxx-advanced-armbased-32bit-mcus-stmicroelectronics.pdf) for MCU programming and configuration
+8) [VGA signals](http://tinyvga.com/vga-timing/640x480@60Hz) for VGA control signals in our VGA controller

@@ -1,0 +1,15 @@
+---
+title: Acknowledgements
+---
+
+Thank you to everyone who helped make this project possible:
+
+1) Prof. Spencer: Thank you so much for such an amazing semester of MicroPs. We learned so much, and were able to apply what we learned to design and build exciting projects we're proud of. Thank you for creating a really supportive environment for us to learn! This was one of the most memorable classes we've taken.
+
+2) Kavi Dey: Thank you so much for spending so many hours, well beyond what you needed to, answering all our questions so patiently. We really appreciate all your time, effort, and guidance!
+
+3) Xavier Walters: Thank you so much for all your patience and effort in trying to help us debug any problem that came our way, no matter how big or small. We really appreciate everything you've done for us!
+
+4) Rest of the MicroPs Grutors (Troy, Neil, Vikram): Thank you so much for all your help debugging!
+
+5) Lynn: Thank you for checking in on us, and buying us snacks to keep us going for our all-nighters!

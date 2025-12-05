@@ -1,3 +1,35 @@
 ---
 title: Results
 ---
+
+The final project worked as we had planned out initially, and we were able to meet all our specs. Users can put in coins into the coin detector, which will add to their credit count, and then they can dynamically change the bet/wager amount they want to play under. They can then click on the pushbutton to start a spin, and test their luck to get a winning sequence! Each reel stops at a centered, random sprite each spin, and reel1 stops first, then reel2, and finally reel3. As each reel is about to stop, it also slows down to simulate a real slot machine.
+
+The system runs at 25.5 Mhz, with SPI running at around 40Hz. We wanted to have as few clocks as possible to avoid CDC issues. Slthough we did have timing violations in some paths because we had large logic cones and a fast clock, we found ways parallelize the design more, reduce fanout, and pipeline our architecture more to have a stronger positive slack. 
+
+Here is out Slot Machine Project Demo:
+{{< video https://www.youtube.com/embed/zKfxkYHY2ys >}}
+
+The project has evolved a lot during the course of our work. The memory controller in particular was quite challening because of how quickly it needs to calcualte the addresses of the sprites on different reels, moving at different speeds, which are being scanned horizontally by the VGA, so this is where a lot of our evolution occured. Below are some of the inital stages of how our VGA looked:
+
+![Figure 1: Initial display of shapes](images/IMG_0529.jpg)
+In Figure 1, we were able to get objects to show up on the VGA in the correct position.
+
+![Figure 2: Structure of 3 reels](images/IMG_0532.jpg)
+In Figure 2, were were able to get three reels displaying, with no sprites.
+
+![Figure 3: Paritioned sprites on each reel, but not correct memory extraction](images/IMG_0541.jpg)
+Figure 3 shows each reel being partitioned into segments which stand for sprites, although all the memory addressing was not working correctly here.
+
+![Figure 4: Distored images, limited scope of images](images/IMG_0549.jpg)
+Figure 4 shows unclear, and distored images because of more memory addressing issues. Additionally, we were limited ot just 3 different sprites, and when we added any more, it would distort all the images.
+
+![Figure 5: Memory addressing distoring sprites further](images/IMG_0574.jpg)
+Figure 5 shows a stronger effect we experienced in Figure 4, where adding more sprites distorted all the images in unclear ways. This was likely due some EBR optimization happening from the synthesis tool.
+
+![Figure 6: Perfect 7 sprites](images/IMG_0647.jpg)
+And FINALLY, after a lot of debugging and trial and error, we were able to get all 7 sprites to show up cleanly on the VGA with no distortion!
+
+![Figure 7: Our hardware before we built the hardware housing](images/IMG_0653.jpg)
+Figure 7 shows how our hardware looked before the hardware housing was built.
+
+### Simulation Results

@@ -1,3 +1,39 @@
 ---
-title: Team
+title: "Team"
 ---
+
+<div class="team-container">
+
+<div class="team-member">
+
+## Sadhvi Narayanan
+
+![](images/sadhvi.jpeg){.team-photo}
+
+Sadhvi is a junior CS major at Harvey Mudd interested in digital and hardware design, processor architecture, hardware-software intersection, and machine learning. 
+
+**Links:**
+
+- [LinkedIn](https://www.linkedin.com/in/sadhvi-narayanan-3b1292283/)
+- [GitHub](https://github.com/SadhviNarayanan)
+- [Portfolio](https://sadhvinarayanan.github.io/hmc-e155-portfolio/)
+
+</div>
+
+<div class="team-member">
+
+## Corey Hickson
+
+![](images/corey.jpg){.team-photo}
+
+Corey is a senior engineering major at Harvey Mudd ...
+
+**Links:**
+
+- [LinkedIn]()
+- [GitHub]()
+- [Portfolio]()
+
+</div>
+
+</div>
