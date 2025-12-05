@@ -113,7 +113,7 @@ The controller uses counters to track position within these windows. During the 
   - `select_toggle` module divides 25.5 MHz clock down to generate 3-bit counter (0-4)
   - Counter determines which display is active and which BCD digit gets decoded
   - Output mapping:
-    - `enable_sel`: 5-bit one-hot signal to PNP transistor bases (active-low)
+    - `enable_sel`: 5-bit one-hot signal to NPN transistor bases (active-low)
     - `seg`: 7-bit signal to LED segments (common cathode configuration)
   - Display sequence: win_digit1, win_digit2, credit_digit1, credit_digit2, credit_digit3
 
@@ -135,7 +135,6 @@ The controller uses counters to track position within these windows. During the 
   - 17-bit counter counts from 0 to 99,999 (close enough to target)
   - When counter reaches limit, increments 3-bit output counter (0-4) and resets
   - Output counter cycles through 5 displays continuously
-  - Clean rollover logic prevents glitches during state transitions
 
 - **Seven Segment Decoder**
   - Pure combinational logic converting 4-bit BCD to 7-segment encoding
