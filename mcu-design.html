@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>MCU Design – E155 Final Project Portfolio Website</title>
+<title>MCU Design – E155 Final Project: Slot Machine</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -80,7 +80,7 @@ ul.task-list li input[type="checkbox"] {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">E155 Final Project Portfolio Website</span>
+    <span class="navbar-title">E155 Final Project: Slot Machine</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -113,6 +113,14 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="./team.html"> 
 <span class="menu-text">Team</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./references.html"> 
+<span class="menu-text">References</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./acknowledgements.html"> 
+<span class="menu-text">Acknowledgements</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -125,8 +133,14 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#mcu-design" id="toc-mcu-design" class="nav-link active" data-scroll-target="#mcu-design">MCU Design</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -150,8 +164,37 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="mcu-design" class="level2">
+<h2 class="anchored" data-anchor-id="mcu-design">MCU Design</h2>
+<p>The MCU handles high-level game logic and asynchronous events.</p>
+<p>Core MCU Functions:</p>
+<ul>
+<li><strong>Coin Detection (Interrupt-Driven):</strong>
+<ul>
+<li>External interrupt triggered by photodiode/coin slot.</li>
+<li>Increments credit count</li>
+<li>Denomination dial determines number of credits to “bet”</li>
+<li>Only starts game when denomination is less that or equal to number of credits</li>
+</ul></li>
+<li><strong>Button Handling:</strong>
+<ul>
+<li>Spin button Interrupt triggers START_SPIN sequence and message to FPGA</li>
+</ul></li>
+<li><strong>Wager/Bet Rotary Switch Control:</strong>
+<ul>
+<li>Dial to control how much the player wants to bet in the current round</li>
+</ul></li>
+<li><strong>Game Logic + SPI:</strong>
+<ul>
+<li>Tracks credits, bets, and game state (<code>IDLE</code>, <code>SPINNING</code>, <code>RESULT</code>).</li>
+<li>Generates the true random final indices of the displayed icons from within three lists representing the three spinning reels, using these to calculate the player’s winnings and total credits</li>
+<li>Sends a 16 bit SPI packet to the FPGA to indicate where the three reels should stop spinning, then another for how many credits the player won, and a final one for how many credits the player has</li>
+<li>Waits for an ACK after the spin sequence</li>
+</ul></li>
+</ul>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -226,7 +269,7 @@ ul.task-list li input[type="checkbox"] {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/SadhviNarayanan\.github\.io\/E155_Final_Project_Portfolio\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

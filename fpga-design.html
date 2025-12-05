@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>FPGA Design – E155 Final Project Portfolio Website</title>
+<title>FPGA Design – E155 Final Project: Slot Machine</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -80,7 +80,7 @@ ul.task-list li input[type="checkbox"] {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">E155 Final Project Portfolio Website</span>
+    <span class="navbar-title">E155 Final Project: Slot Machine</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -113,6 +113,14 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="./team.html"> 
 <span class="menu-text">Team</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./references.html"> 
+<span class="menu-text">References</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./acknowledgements.html"> 
+<span class="menu-text">Acknowledgements</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -125,8 +133,19 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#fpga-design" id="toc-fpga-design" class="nav-link active" data-scroll-target="#fpga-design">FPGA Design</a>
+  <ul class="collapse">
+  <li><a href="#vga-timing-protocol" id="toc-vga-timing-protocol" class="nav-link" data-scroll-target="#vga-timing-protocol">VGA Timing Protocol</a></li>
+  <li><a href="#core-fpga-modules" id="toc-core-fpga-modules" class="nav-link" data-scroll-target="#core-fpga-modules">Core FPGA Modules</a></li>
+  <li><a href="#block-diagram" id="toc-block-diagram" class="nav-link" data-scroll-target="#block-diagram">Block Diagram</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -150,8 +169,190 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="fpga-design" class="level2">
+<h2 class="anchored" data-anchor-id="fpga-design">FPGA Design</h2>
+<p>The FPGA handles all visual output and timing-critical operations for the slot machine. A VGA controller generates sync signals and drives RGB output at 25.5 MHz using the PLL, and a memory controller fetches sprite data from EBR blocks based on the current reel positions and VGA coordinates. The system receives commands from the MCU over SPI—including where each reel should stop and how many credits were won along with the player’s total credit count, in order to create a realistic slot machine animation. We have a couple modules for the seven-segment displays which drive the credit and winnings displays based on values sent from the MCU.</p>
+<section id="vga-timing-protocol" class="level3">
+<h3 class="anchored" data-anchor-id="vga-timing-protocol">VGA Timing Protocol</h3>
+<p>The VGA controller operates at 640×480 resolution, coordinating pixel output through horizontal and vertical timing sequences.</p>
+<p><strong>Horizontal Timing (per scan line)</strong></p>
+<p>Each line spans 800 clock cycles total, broken down as:</p>
+<ul>
+<li>640 cycles of active pixel data</li>
+<li>16-cycle front porch</li>
+<li>96-cycle sync pulse</li>
+<li>48-cycle back porch</li>
+</ul>
+<p><strong>Vertical Timing (per frame)</strong></p>
+<p>Each frame contains 525 lines total:</p>
+<ul>
+<li>480 visible lines displaying image content</li>
+<li>10-line front porch</li>
+<li>2-line sync pulse<br>
+</li>
+<li>33-line back porch</li>
+</ul>
+<p>The controller uses counters to track position within these windows. During the 640×480 visible region, it outputs RGB pixel data fetched from memory. Outside this window, RGB outputs go to zero while sync signals coordinate the monitor’s beam positioning for the next frame.</p>
+</section>
+<section id="core-fpga-modules" class="level3">
+<h3 class="anchored" data-anchor-id="core-fpga-modules">Core FPGA Modules</h3>
+<ul>
+<li><strong>VGA Controller</strong>
+<ul>
+<li>Generates horizontal and vertical sync signals (<code>hsync</code>, <code>vsync</code>) which are active-low</li>
+<li>Maintains <code>hcount</code> (0-799) and <code>vcount</code> (0-524) counters that track the current pixel position</li>
+<li>When <code>hcount</code> reaches 799, it resets to 0 and increments <code>vcount</code>; when both reach their max, the frame completes and both counters reset</li>
+<li>Asserts <code>active_video</code> signal only during the visible 640×480 display region to gate RGB output</li>
+<li>Sync pulses are generated when counters fall within their respective sync timing windows (first 96 horizontal cycles, first 2 vertical lines)</li>
+</ul></li>
+<li><strong>Memory Controller</strong>
+<ul>
+<li>Stores a mapping of unique sprite sequences per reel in lookup tables initialized at synthesis:
+<ul>
+<li>Reel 1: Sequential (0,1,2,3,4,5,6)</li>
+<li>Reel 2: Shuffled (3,0,6,2,4,1,5) to prevent consecutive-value adjacency</li>
+<li>Reel 3: Shuffled (2,5,0,3,6,1,4) to prevent consecutive-value adjacency</li>
+</ul></li>
+<li>Receives reel ending symbol indices from SPI module (interfacing with MCU)</li>
+<li>Computes each reel’s pixel offset on frame completion based on the unique sprite pattern for that reel</li>
+<li>Takes in <code>(hcount, vcount)</code> coordinates from VGA controller to:
+<ul>
+<li>Determine which reel the current pixel belongs to (based on horizontal boundaries)</li>
+<li>Calculate vertical position within that reel using <code>(vcount - REEL_START + reel_offset) % TOTAL_HEIGHT</code></li>
+<li>Derive sprite index by dividing vertical position by scaled sprite height (128 pixels)</li>
+<li>Map sprite index through the reel’s sequence table to get actual sprite number</li>
+<li>Calculate x and y coordinates within the 64×64 sprite, accounting for 2× scaling</li>
+</ul></li>
+<li>Implements a 3-stage pipeline to match ROM latency:
+<ul>
+<li>Stage 0: Combinational address calculation</li>
+<li>Stage 1-2: ROM access with registered control signals</li>
+<li>Stage 3: Data alignment and pixel extraction</li>
+</ul></li>
+<li>Sequentially stops reels in timed order with realistic deceleration:
+<ul>
+<li>During <code>START_SPINNING</code>: All reels advance 24 pixels/frame at full speed</li>
+<li>Each reel tracks a spin counter (reel 1 → 3 spins, reel 2 → 2 spins, reel 3 → 2 spins)</li>
+<li>When a reel’s counter hits 0, it transitions to its STOP state and slows to 12 pixels/frame</li>
+<li>Calculates target ending offset: <code>(target_sprite_pos × 128 + TOTAL_HEIGHT - centering_offset) % TOTAL_HEIGHT</code></li>
+<li>Snap-back logic prevents overshooting: if next offset would exceed target, clamp it to exact target value</li>
+<li>This creates the effect of each reel performing one full rotation before stopping</li>
+</ul></li>
+<li>Reels stop at precomputed random positions sent by the MCU via SPI</li>
+<li>Holds final pixel state after all reels stop by maintaining fixed offsets until next spin</li>
+<li>State machine transitions: <code>IDLE → START_SPINNING → REEL1_STOP → REEL2_STOP → REEL3_STOP → IDLE</code>
+<ul>
+<li>Each STOP state handles: reel deceleration, snap-back logic, offset preservation for stopped reels, and spin counting for still-moving reels</li>
+</ul></li>
+<li>Generates yellow border rectangles around the middle row of sprites using precomputed horizontal boundary checks to reduce mux fanout</li>
+</ul></li>
+<li><strong>Symbol ROM Storage</strong>
+<ul>
+<li>Uses 28 of 30 available EBRs on the iCE40 to store 7 sprites, with each sprite spanning 4 EBR blocks</li>
+<li>EBR configuration: 256×16 structure stores 64×64 pixel sprites that get scaled 2× to 128×128 by the memory controller</li>
+<li>Data packing: Each 16-bit word holds 4 pixels, with each pixel using 4 bits (3 bits RGB + 1 unused bit for simpler arithmetic since we can use simple bit shifting instead)</li>
+<li>ROM wrapper module manages sprite selection:
+<ul>
+<li>Lower 8 bits of address select word within 256-word EBR</li>
+<li>Upper 2 bits select which of 4 EBRs to access for that sprite</li>
+<li>Sprite index (0-6) combined with EBR selector determines which physical ROM to enable</li>
+</ul></li>
+<li>Hierarchical muxing reduces fanout: first mux within each sprite’s 4 EBRs, then final mux across all sprites</li>
+<li>2-cycle read latency using registered outputs for better timing closure and signal stability</li>
+<li>ROM initialization files loaded at synthesis time from <code>.mem</code> files containing hex pixel data</li>
+</ul></li>
+<li><strong>ROM Wrapper</strong>
+<ul>
+<li>Instantiates 28 individual ROM modules (r1-r28) using both EBR IP blocks and combinational ROMs</li>
+<li>Generates enable signals based on sprite selection and BRAM selector bits</li>
+<li>Implements 3-stage pipeline to handle ROM latency:
+<ul>
+<li>Stage 1: Register input address and sprite select</li>
+<li>Stage 2: ROM data becomes available</li>
+<li>Stage 3: Register ROM outputs and delay control signals to stay synchronized</li>
+</ul></li>
+<li>Uses hierarchical multiplexing to reduce critical path:
+<ul>
+<li>First level: 7 muxes (one per sprite) selecting from 4 EBRs each</li>
+<li>Second level: Final mux selecting between 7 sprite outputs based on delayed sprite_sel signal</li>
+</ul></li>
+<li>All outputs registered multiple times to match memory controller pipeline depth</li>
+</ul></li>
+<li><strong>SPI Interface Module</strong>
+<ul>
+<li>Operates as SPI peripheral with the MCU as controller</li>
+<li>Receives 16-bit commands on COPI line, clocked by <code>sclk</code> from MCU</li>
+<li>Format: [15:12] = 4-bit request code, [11:0] = 12-bit data payload</li>
+<li>Shift register loads data on rising edge of <code>sclk</code> when chip select is low</li>
+<li>After 16 bits received, pulses <code>ready</code> signal high for one clock cycle</li>
+<li>Three request types:
+<ul>
+<li><code>REQ_SPIN (0001)</code>: Data contains three 4-bit reel indices, asserts <code>start_spin</code> for one cycle</li>
+<li><code>REQ_WIN (0010)</code>: Data contains 12-bit win amount, asserts <code>is_win</code> flag</li>
+<li><code>REQ_UPDATE (0011)</code>: Data contains 12-bit total credits, asserts <code>is_total</code> flag</li>
+</ul></li>
+<li>Clock domain crossing: <code>ready</code> signal synchronized from <code>sclk</code> domain to system <code>clk</code> domain</li>
+<li>Flags (<code>start_spin</code>, <code>is_win</code>, <code>is_total</code>) are single-cycle pulses that clear automatically</li>
+</ul></li>
+<li><strong>Credit Controller</strong>
+<ul>
+<li>Manages time-multiplexed seven-segment display output for 5 digits</li>
+<li>Receives credit data: 2 digits for win amount, 3 digits for total credits</li>
+<li>Each digit represented as 4-bit BCD value</li>
+<li>Cycles through displays at ~250 Hz using frequency divider (imperceptible to human eye)</li>
+<li><code>select_toggle</code> module divides 25.5 MHz clock down to generate 3-bit counter (0-4)</li>
+<li>Counter determines which display is active and which BCD digit gets decoded</li>
+<li>Output mapping:
+<ul>
+<li><code>enable_sel</code>: 5-bit one-hot signal to PNP transistor bases (active-low)</li>
+<li><code>seg</code>: 7-bit signal to LED segments (common cathode configuration)</li>
+</ul></li>
+<li>Display sequence: win_digit1, win_digit2, credit_digit1, credit_digit2, credit_digit3</li>
+</ul></li>
+<li><strong>PLL Clock Module</strong>
+<ul>
+<li>Instantiates iCE40 PLL_B primitive to generate 25.5 MHz pixel clock from internal HSOSC</li>
+<li>HSOSC configured to run at 48 MHz using <code>CLKHF_DIV = "0b00"</code></li>
+<li>PLL parameters (strings required by Lattice primitives):
+<ul>
+<li><code>DIVR = "0"</code>: Reference divider</li>
+<li><code>DIVF = "16"</code>: Feedback divider<br>
+</li>
+<li><code>DIVQ = "5"</code>: Output divider</li>
+<li>Formula: f_out = (f_ref × (DIVF+1)) / ((DIVR+1) × 2^DIVQ) = (48 MHz × 17) / (1 × 32) = 25.5 MHz</li>
+</ul></li>
+<li>Outputs <code>locked</code> signal indicating PLL has achieved phase lock</li>
+<li><code>locked</code> ANDed with external <code>reset_n</code> to generate global reset for rest of design</li>
+<li>Routes output to both global clock network (<code>OUTGLOBAL</code>) and external pin (<code>OUTCORE</code>) for debug</li>
+</ul></li>
+<li><strong>Select Toggle Module</strong>
+<ul>
+<li>Divides system clock to generate display update frequency</li>
+<li>Target: 250 Hz refresh rate (4 ms per display), requires 102,000 clock cycles at 25.5 MHz</li>
+<li>17-bit counter counts from 0 to 99,999 (close enough to target)</li>
+<li>When counter reaches limit, increments 3-bit output counter (0-4) and resets</li>
+<li>Output counter cycles through 5 displays continuously</li>
+<li>Clean rollover logic prevents glitches during state transitions</li>
+</ul></li>
+<li><strong>Seven Segment Decoder</strong>
+<ul>
+<li>Pure combinational logic converting 4-bit BCD to 7-segment encoding</li>
+</ul></li>
+</ul>
+</section>
+<section id="block-diagram" class="level3">
+<h3 class="anchored" data-anchor-id="block-diagram">Block Diagram</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/block_diagram.png" class="img-fluid figure-img"></p>
+<figcaption>Figure 1: Block Diagram of the project</figcaption>
+</figure>
+</div>
+<p>The block diagram in Figure 1 demonstrates the overall design and architecture of the design. We can see there are a variety of control modules to handle the VGA display as well as memory accesses (to display the sprites correctly). We also have ROM blocks, and other elements include a SPI module and 7-segment display for other feautures in our design.</p>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -226,7 +427,7 @@ ul.task-list li input[type="checkbox"] {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/SadhviNarayanan\.github\.io\/E155_Final_Project_Portfolio\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

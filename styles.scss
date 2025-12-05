@@ -8,3 +8,61 @@ label {
   text-indent: -0.625em;
   padding-left: 1.625em;
 }
+
+/* Team Page Styles */
+.team-container {
+  display: flex;
+  justify-content: space-around;
+  gap: 3rem;
+  margin-top: 2rem;
+}
+
+.team-member {
+  flex: 1;
+  max-width: 450px;
+}
+
+.team-photo {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+  border: 3px solid #ddd;
+}
+
+.team-member h2 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.team-member p {
+  line-height: 1.6;
+  color: #555;
+}
+
+.team-member ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.team-member ul li {
+  margin-bottom: 0.5rem;
+}
+
+.team-member ul li a {
+  color: #4a90e2;
+  text-decoration: none;
+}
+
+.team-member ul li a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .team-container {
+    flex-direction: column;
+    gap: 2rem;
+  }
+}

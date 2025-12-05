@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Documentation – E155 Final Project Portfolio Website</title>
+<title>Documentation – E155 Final Project: Slot Machine</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -80,7 +80,7 @@ ul.task-list li input[type="checkbox"] {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">E155 Final Project Portfolio Website</span>
+    <span class="navbar-title">E155 Final Project: Slot Machine</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -113,6 +113,14 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="./team.html"> 
 <span class="menu-text">Team</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./references.html"> 
+<span class="menu-text">References</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./acknowledgements.html"> 
+<span class="menu-text">Acknowledgements</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -125,8 +133,17 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#new-hardware-used-by-our-project" id="toc-new-hardware-used-by-our-project" class="nav-link active" data-scroll-target="#new-hardware-used-by-our-project">New Hardware used by our Project</a></li>
+  <li><a href="#schematic" id="toc-schematic" class="nav-link" data-scroll-target="#schematic">Schematic</a></li>
+  <li><a href="#technical-documentationsource-code" id="toc-technical-documentationsource-code" class="nav-link" data-scroll-target="#technical-documentationsource-code">Technical Documentation/Source Code</a></li>
+  <li><a href="#bill-of-materials" id="toc-bill-of-materials" class="nav-link" data-scroll-target="#bill-of-materials">Bill of Materials</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -150,8 +167,115 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="new-hardware-used-by-our-project" class="level2">
+<h2 class="anchored" data-anchor-id="new-hardware-used-by-our-project">New Hardware used by our Project</h2>
+<ol type="1">
+<li>FPGA: Embedded Block RAM (EBR)</li>
+</ol>
+<p>The iCE40 FPGA includes dedicated memory blocks called EBRs, which we used to store all the sprite data for the slot machine symbols. These are separate from the regular LUT logic, so using them frees up LUTs for other parts of the design like our memory controller, VGA controller, SPI transactions etc., especially because we did have a lot of pipelined and combinational logic. Each symbol we used gets stored as a chunk of pixel data in EBR, where we store a 64x64 pixel resolution, and eventually scale it to 128x128 in the VGA. We need 4 ROM blocks per sprite, and on each word we store 4 pixels (each taking up 4 bits, where although we only need 3 using 4 can make logic easier because it allows us to use bit shifting instead of the division operator). The block configuration we used for the EBRs was 256x16. The memory controller reads from these blocks based on the current VGA position and which reel is being displayed. Our EBRs had a two cycle latency because it was using registered outputs as well. Essentially, our symbols are stored sequentially in memory, and the controller calculates the right address offset based on the reel position. When a reel is spinning, the offset keeps changing upon each frame to create the scrolling effect.</p>
+<ol start="2" type="1">
+<li>MCU: True Random Number Generator (TRNG)</li>
+</ol>
+<p>The STM32L4 has a “true” hardware random number generator that we used to pick where the reels end up. This approach allows us to use analog signals from physical noise in the chip’s circuits to create a true random seed instead of having a software defined pseudo-random number generator. When the player hits the spin button, the MCU gets random values from the TRNG peripheral and uses them to calculate the stopping positions for all three reels. Then the ending sprites for each reel gets sent to the FPGA over SPI, and the visual animation of the spinning reel begins. Using this form of hardware randomness makes the game more fair as you cannot take advantage of a known seed when generating the randomness.</p>
+</section>
+<section id="schematic" class="level2">
+<h2 class="anchored" data-anchor-id="schematic">Schematic</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/schematic_fp.png" class="img-fluid figure-img"></p>
+<figcaption>Figure 1: Schematic of the design</figcaption>
+</figure>
+</div>
+<p>The schematic in Figure 1 demonstrates the overall design of how we are connecting the FPGA to the VGA monitor. Because we are only using 3-bit resolution for the pixels, we are scaling the voltage outputs to 0.7 if we want to display a color.</p>
+<p>NOTE: Any pins with a letter in it corresponds to a pin on the MCU, and any pin with no letters and just a number corresponds to a pin on the FPGA.</p>
+</section>
+<section id="technical-documentationsource-code" class="level2">
+<h2 class="anchored" data-anchor-id="technical-documentationsource-code">Technical Documentation/Source Code</h2>
+<p>The source code for the project can be found in the associated <a href="https://github.com/SadhviNarayanan/uP_slot_machine">Github repository</a></p>
+</section>
+<section id="bill-of-materials" class="level2">
+<h2 class="anchored" data-anchor-id="bill-of-materials">Bill of Materials</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;"><strong>Quantity</strong></th>
+<th style="text-align: left;"><strong>Item</strong></th>
+<th style="text-align: center;"><strong>Price (incl.&nbsp;Tax &amp; Shipping)</strong></th>
+<th style="text-align: center;"><strong>Purchase Link</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">7 inch VGA Monitor</td>
+<td style="text-align: center;">$45.68</td>
+<td style="text-align: center;"><a href="amazon.com/Aurevita-HDMI-LCD-Multi-Function-Raspberry/dp/B0DYV5YRW2/ref=sr_1_4?crid=3L62JC6OCNHNJ&amp;dib=eyJ2IjoiMSJ9.PfvjWKgqBLp0KotuCD6G73wqAlNTlXwA5jucw81A6BZTMl75g80HYobGStZq6aSHC5BiebfoLs6wawTL6hOpAlZWGHgLGSyZsVeWnnGounDSm44MouLQY4FloVqISoY_5gIIF_4tknwyUPfrme88JjKIe3fJsTBQLmWQ9aLLO4B6-igyuU5RRu6zHMrQpnn41GqZIzbbhfMVMh6vBDyMtI55_7-iQal233iokNTe5f8.WWgulaldR5x1Sayg1hJ-5plDATBGf2rI1H1qevI4GFM&amp;dib_tag=se&amp;keywords=vga+monitor&amp;qid=1760585872&amp;sprefix=vga+monito%2Caps%2C187&amp;sr=8-4">Link to Monitor</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">Phototransistor</td>
+<td style="text-align: center;">Stockroom</td>
+<td style="text-align: center;">n/a</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">IR LED</td>
+<td style="text-align: center;">Stockroom</td>
+<td style="text-align: center;">n/a</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">Clicky Pushbutton</td>
+<td style="text-align: center;">Stockroom</td>
+<td style="text-align: center;">n/a</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">4 Way (Rotary) Selector Switch</td>
+<td style="text-align: center;">Stockroom</td>
+<td style="text-align: center;">n/a</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">5</td>
+<td style="text-align: left;">Seven Segment Display</td>
+<td style="text-align: center;">Stockroom</td>
+<td style="text-align: center;">n/a</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">5</td>
+<td style="text-align: left;">PNP Transistors</td>
+<td style="text-align: center;">Stockroom</td>
+<td style="text-align: center;">n/a</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">5</td>
+<td style="text-align: left;">1 kΩ Resistors (for PNPs)</td>
+<td style="text-align: center;">Stockroom</td>
+<td style="text-align: center;">n/a</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">7</td>
+<td style="text-align: left;">680 Ω Resistors (current limiting)</td>
+<td style="text-align: center;">Stockroom</td>
+<td style="text-align: center;">n/a</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">3</td>
+<td style="text-align: left;">275 kΩ Resistors (voltage divider)</td>
+<td style="text-align: center;">Stockroom</td>
+<td style="text-align: center;">n/a</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">10 kΩ Resistors (voltage divider)</td>
+<td style="text-align: center;">Stockroom</td>
+<td style="text-align: center;">n/a</td>
+</tr>
+</tbody>
+</table>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -226,7 +350,7 @@ ul.task-list li input[type="checkbox"] {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/SadhviNarayanan\.github\.io\/E155_Final_Project_Portfolio\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
