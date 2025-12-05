@@ -304,7 +304,7 @@ ul.task-list li input[type="checkbox"] {
 <li>Counter determines which display is active and which BCD digit gets decoded</li>
 <li>Output mapping:
 <ul>
-<li><code>enable_sel</code>: 5-bit one-hot signal to PNP transistor bases (active-low)</li>
+<li><code>enable_sel</code>: 5-bit one-hot signal to NPN transistor bases (active-low)</li>
 <li><code>seg</code>: 7-bit signal to LED segments (common cathode configuration)</li>
 </ul></li>
 <li>Display sequence: win_digit1, win_digit2, credit_digit1, credit_digit2, credit_digit3</li>
@@ -332,7 +332,6 @@ ul.task-list li input[type="checkbox"] {
 <li>17-bit counter counts from 0 to 99,999 (close enough to target)</li>
 <li>When counter reaches limit, increments 3-bit output counter (0-4) and resets</li>
 <li>Output counter cycles through 5 displays continuously</li>
-<li>Clean rollover logic prevents glitches during state transitions</li>
 </ul></li>
 <li><strong>Seven Segment Decoder</strong>
 <ul>
